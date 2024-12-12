@@ -1,41 +1,28 @@
 'use client'
 
 import React, {useEffect, useState} from 'react';
-import axiosInstance from "@/shared/libs/axios";
-import {CharacterType} from "@/app/types/characters.types";
 import {useParams} from "next/navigation";
 import CharactersList from "@/shared/ui/charactersList";
-import Loader from "@/shared/ui/Loader";
+import {useAppDispatch, useAppSelector} from "@/shared/hooks/redux";
+import {fetchLocationsById} from "@/entities/reducers/ActionCreators";
 
 const Page = () => {
     const {id}=useParams()
-    const [characters, setCharacters]=useState<CharacterType[]>([])
+
+    const dispatch=useAppDispatch();
+    const {characters, error, isLoading}=useAppSelector(state => state.location)
 
     useEffect(() => {
-        fetchLocationsId()
-    }, []);
-
-    const fetchLocationsId = async ()=>{
-        try {
-            const response = await axiosInstance.get(`/location/${id}`)
-            const residents = response.data.residents
-            const fetchResidents = residents.map((resident) => axiosInstance(resident))
-            const residentResponse= await Promise.all(fetchResidents)
-            const dataMap=residentResponse.map((data)=>data.data)
-
-            setCharacters(dataMap)
+        if(id){
+            dispatch(fetchLocationsById(Number(id)))
         }
-        catch (e) {
-            console.log(e)
-        }
-    }
+    }, [id, dispatch]);
+
+
 
     return (
         <div>
-            {characters.length > 0
-                ? <CharactersList characters={characters}/>
-                : <Loader/>
-            }
+            <CharactersList characters={characters}/>
         </div>
     );
 };

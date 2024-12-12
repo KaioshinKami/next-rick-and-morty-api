@@ -24,7 +24,6 @@ const EpisodesList:FC<EpisodesListProps> = (
         <div>
             <div className="container mx-auto p-4">
                 <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Episodes</h1>
-                {episodes.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {episodes.map((episode: EpisodeType) => (
                             <div
@@ -40,9 +39,6 @@ const EpisodesList:FC<EpisodesListProps> = (
                             </div>
                         ))}
                     </div>
-                ) : (
-                    <p className="text-center text-gray-500">No episodes found.</p>
-                )}
             </div>
 
             <Pagination itemsPerPage={itemsPerPage}

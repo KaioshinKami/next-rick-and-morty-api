@@ -1,39 +1,35 @@
 'use client'
 
-import React, {useEffect, useState} from 'react';
-import axiosInstance from "@/shared/libs/axios";
-import {EpisodeType} from "@/app/types/episode.type";
-import Link from "next/link";
-import Pagination from "@/shared/ui/pagination";
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '@/app/(store)/store';
+import { fetchEpisodes } from '@/entities/reducers/ActionCreators';
 import EpisodesList from "@/shared/ui/episodesList";
+import Loader from "@/shared/ui/Loader";
 
 const Episodes = () => {
-    const itemsPerPage:number=20;
-    const [currentPage, setCurrentPage]=useState<number>(1);
-    const [totalCount, setTotalCount]=useState<number>(0)
-    const [episodes, setEpisodes]=useState<EpisodeType[]>([])
+    const itemsPerPage: number = 20;
+    const [currentPage, setCurrentPage] = useState<number>(1);
 
-    useEffect(()=>{
-        fetchEpisodes()
-    }, [currentPage])
+    const dispatch = useDispatch<AppDispatch>();
+    const { episodes, totalCount, isLoading, error } = useSelector((state: RootState) => state.episode);
 
-    const fetchEpisodes = async ()=>{
-        const response=await axiosInstance.get<EpisodeType>('/episode', {
-            params: {page:currentPage}
-        });
-
-        setEpisodes(response.data.results)
-        setTotalCount(response.data.info.count)
-    }
-
+    useEffect(() => {
+        dispatch(fetchEpisodes(currentPage));
+    }, [currentPage, dispatch]);
 
     return (
         <div>
-            <EpisodesList itemsPerPage={itemsPerPage}
-                          currentPage={currentPage}
-                          totalCount={totalCount}
-                          setCurrentPage={setCurrentPage}
-                          episodes={episodes}/>
+            <EpisodesList
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                totalCount={totalCount}
+                setCurrentPage={setCurrentPage}
+                episodes={episodes}
+            />
+
+            {isLoading && <Loader />}
+            {error && <h1 className='text-3xl text-center font-semibold mt-48'>{error}</h1>}
         </div>
     );
 };

@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import CharactersList from "@/shared/ui/charactersList";
 import { useAppDispatch, useAppSelector } from "@/shared/hooks/redux";
 import { fetchCharacters } from "@/entities/reducers/ActionCreators";
+import Loader from "@/shared/ui/Loader";
 
 const Characters = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const dispatch = useAppDispatch();
 
-    const { characters, isLoading } = useAppSelector((state) => state.character);
+    const { characters, isLoading, error } = useAppSelector((state) => state.character);
 
     useEffect(() => {
         dispatch(fetchCharacters(currentPage));
@@ -35,6 +36,8 @@ const Characters = () => {
     return (
         <div>
             <CharactersList characters={characters} isLoading={isLoading} />
+            {isLoading && <Loader />}
+            {error && <h1 className='text-3xl text-center font-semibold mt-48'>{error}</h1>}
         </div>
     );
 };

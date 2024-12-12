@@ -1,34 +1,30 @@
 'use client'
 
-import React, {useEffect, useState} from 'react';
-import {useParams} from "next/navigation";
-import axiosInstance from "@/shared/libs/axios";
+import React, { useEffect } from 'react';
+import { useParams } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/shared/hooks/redux";
+import { fetchCharactersById } from "@/entities/reducers/ActionCreators";
 import EpisodesList from "@/shared/ui/episodesList";
-import {EpisodeType} from "@/app/types/episode.type";
+import Loader from "@/shared/ui/Loader";
+import {RootState} from "@/app/(store)/store";
 
 const CharacterId = () => {
-    const {id}=useParams()
-    const [episodes, setEpisodes]=useState<EpisodeType>([])
+    const { id } = useParams();
 
-    useEffect(()=>{
-        fetchCharacterId()
-    }, [id])
+    const dispatch = useAppDispatch();
+    const { episodes, isLoading, error } = useAppSelector((state:RootState) => state.character);
 
-    const fetchCharacterId= async ()=>{
-        const response=await axiosInstance.get(`/character/${id}`)
-        const data=response.data.episode
-        const episode=data.map(url=>axiosInstance.get(url))
-        const fetchEpisode=await Promise.all(episode)
-        const responseEpisode=fetchEpisode.map(promises=>promises.data)
-
-        console.log(responseEpisode)
-
-        setEpisodes(responseEpisode)
-    }
+    useEffect(() => {
+        if (id) {
+            dispatch(fetchCharactersById(Number(id)));
+        }
+    }, [id, dispatch]);
 
     return (
         <div>
             <EpisodesList episodes={episodes} />
+            {isLoading && <Loader />}
+            {error && <h1 className='text-3xl text-center font-semibold mt-48'>{error}</h1>}
         </div>
     );
 };
